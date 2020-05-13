@@ -754,7 +754,7 @@ window.app = new Vue({
 
       }));
 
-      if (this.showTrendLine && this.doublingTime > 0) {
+      if (this.showTrendLine && this.doublingTime > 0 && this.countries.some(country => this.selectedCountries.includes(country)) {
         let cases = [1, 10000000];
 
         let trace3 = [{
