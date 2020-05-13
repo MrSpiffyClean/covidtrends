@@ -659,7 +659,7 @@ window.app = new Vue({
     annotations() {
 
       return [{
-        visible: this.showTrendLine && this.doublingTime > 0,
+        visible: this.showTrendLine && this.doublingTime > 0 && this.countries.some(country => this.selectedCountries.includes(country),
         x: this.xAnnotation,
         y: this.yAnnotation,
         xref: 'x',
