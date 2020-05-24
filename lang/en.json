@@ -1,0 +1,18 @@
+en = {
+"msg01":"This interactive charts the <b><i>new</i></b> {{selectedData.toLowerCase()}} of COVID-19 in the past week vs. the <b><i>total</i></b> {{selectedData.toLowerCase()}} to date. When plotted in this way, exponential growth is represented as a straight line that slopes upwards. Notice that almost all countries follow a very similar path of exponential growth. <i>We're all in this together.</i> <span v-if="isHidden"><a @click="toggleHide">Learn more.</a></span>",
+"msg02":"To learn more about this graph, watch this video created by Minute Physics.",
+"msg03":"<i><b>Note:</b> The x-axis of this graph is not time</i>, but is instead the total number of cases or deaths.",
+"msg04":"<b>Tips:</b> Press Space (or the play button) to Play/Pause. Press +/- keys (or drag the slider) to see daily changes. Hover over the graph for more info. Drag your mouse to zoom in, doubleclick to zoom back out. And don't forget to wash your hands!",
+"msg05":"Created by <a href="https://aatishb.com/">Aatish Bhatia</a> in collaboration with <a href="https://www.youtube.com/user/minutephysics">Minute Physics</a> &middot; World data provided by <a href="https://github.com/CSSEGISandData/COVID-19">Johns Hopkins University</a> (updated daily around 00:00 UTC / 20:00 ET) &middot; US state data provided by <a href="https://github.com/nytimes/covid-19-data">NYTimes</a> (updated daily around 16:00 UTC / 12:00 ET)&middot; Shortcuts: +/- for daily changes, space to play/pause &middot; <a href="https://github.com/aatishb/covidtrends#credits">Credits & Source</a> &middot; <a href="https://www.cdc.gov/coronavirus/2019-ncov/prepare/prevention.html">Stay safe!</a>",
+"msg06":"Customize",
+"msg07":"Select Parameter",
+"msg08":"Select Region",
+"msg09":"Select Scale",
+"msg10":"Show Labels",
+"msg11":"Show",
+"msg12":"Day Doubling Time",
+"msg13":"Deselect All",
+"msg14":"Select All",
+"msg15":"Showing {{regionType}} with at least {{minCasesInCountry}} {{selectedData}}",
+"msg16":"",
+}
