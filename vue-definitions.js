@@ -159,6 +159,7 @@ window.app = new Vue({
   el: '#root',
 
   mounted() {
+    Plotly.d3.csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv', (data) => this.ISOInit(data));
     this.pullData(this.selectedData, this.selectedRegion);
   },
 
@@ -199,9 +200,7 @@ window.app = new Vue({
       }
 
       // since this rename came later, use the old name to not break existing URLs
-      let renames = {
-        'China': 'China (Mainland)'
-      };
+      let renames = this.renames;
 
       // before we added regions, the url parameter was called country instead of location
       // we still check for this so as to not break existing URLs
@@ -209,6 +208,8 @@ window.app = new Vue({
         this.selectedCountries = urlParameters.getAll('country').map(e => Object.keys(renames).includes(e) ? renames[e] : e);
       } else if (urlParameters.has('location')) {
         this.selectedCountries = urlParameters.getAll('location').map(e => Object.keys(renames).includes(e) ? renames[e] : e);
+      } else if (urlParameters.has('locs')) { // new URL stuff
+        this.selectedCountries = urlParameters.get('locs').split(',');
       }
 
       if (urlParameters.has('trendline')) {
@@ -282,7 +283,34 @@ window.app = new Vue({
   },
 
   methods: {
-
+    ISOInit(data) {
+      let codeMap = [];
+      let nameMap = [];
+      for (let row of data) {
+        let code = row['iso2'].toLowerCase();
+        let name = row['Country_Region'];
+        if (!codeMap.includes(code)) {
+          codeMap.push(code);
+          if (!nameMap.includes(name)) {
+            nameMap.push(name);
+          } else {
+            nameMap.push(row['Province_State']); // Dealing with Hong Kong and Macau, because the database isn't consistent with the time series
+          }
+        }
+      }
+		
+      // rename nameMap
+      let renames = {...this.renames, 'Hong Kong SAR': 'Hong Kong', 'Macau SAR': 'Macau'};
+      nameMap = nameMap.map(e => Object.keys(renames).includes(e) ? renames[e] : e);
+      
+      let zip = rows=>rows[0].map((_,c)=>rows.map(row=>row[c])); // https://stackoverflow.com/a/10284006
+      const ISOToFullMap = zip([codeMap,nameMap]);
+      const FullToISOMap = zip([nameMap,codeMap]);
+      this.ISOToFull = Object.fromEntries(ISOToFullMap);
+      this.FullToISO = Object.fromEntries(FullToISOMap);
+      this.selectedCountries = this.selectedCountries.map(e => this.ISOToFull[e]);
+    },
+    
     debounce(func, wait, immediate) { // https://davidwalsh.name/javascript-debounce-function
       var timeout;
       return function() {
@@ -405,11 +433,7 @@ window.app = new Vue({
 
       let exclusions = ['Cruise Ship', 'Diamond Princess'];
 
-      let renames = {
-        'Taiwan*': 'Taiwan',
-        'Korea, South': 'South Korea',
-        'China': 'China (Mainland)'
-      };
+      let renames = this.renames;
 
       let covidData = [];
       for (let row of grouped) {
@@ -574,7 +598,7 @@ window.app = new Vue({
       }
 
       // since this rename came later, use the old name for URLs to avoid breaking existing URLs
-      let renames = {'China (Mainland)': 'China'};
+      let renames = this.renames;
             
       if (!this.showTrendLine) {
         queryUrl.append('trendline', this.showTrendLine);
@@ -607,13 +631,14 @@ window.app = new Vue({
 
         // apply renames and append to queryUrl
         countriesToAppendToUrl = countriesToAppendToUrl.map(country => Object.keys(renames).includes(country) ? renames[country] : country);
-        countriesToAppendToUrl.forEach(country => queryUrl.append('location', country));
+        countriesToAppendToUrl = countriesToAppendToUrl.map(country => this.FullToISO[country]).join(',');
+        queryUrl.append('locs', countriesToAppendToUrl);
       }
 
       if (queryUrl.toString() == '') {
         window.history.replaceState({}, 'Covid Trends', location.pathname);
       } else {
-        window.history.replaceState({}, 'Covid Trends', '?' + queryUrl.toString());
+        window.history.replaceState({}, 'Covid Trends', '?' + decodeURIComponent(queryUrl.toString()));
       }
 
     },
@@ -899,6 +924,16 @@ window.app = new Vue({
 
     paused: true,
 
+    ISOToFull: {},
+
+    FullToISO: {},
+
+    renames: {
+      'Taiwan*': 'Taiwan',
+      'Korea, South': 'South Korea',
+      'China': 'China (Mainland)'
+    },
+
     dataTypes: ['Confirmed Cases', 'Reported Deaths'],
 
     selectedData: 'Confirmed Cases',
@@ -928,7 +963,7 @@ window.app = new Vue({
     visibleCountries: [], // used for search
 
     selectedCountries: [], // used to manually select countries 
-    
+
     defaultCountries: [], // used for createURL default check
 
     isHidden: true,
@@ -938,7 +973,7 @@ window.app = new Vue({
     showTrendLine: true,
 
     doublingTime: 2,
-    
+
     mySelect: '',
 
     searchField: '',
